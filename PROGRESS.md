@@ -5,7 +5,7 @@
 - **Goals**: Secure (JWT, RLS, encryption), Scalable (pagination, caching, auto-scaling), End-to-End (from onboarding to high-load matching/analytics).
 - **Phases**: Build incrementally; test each phase on iOS/Android simulators.
 
-## Phase 1: Setup & Onboarding (Status: [Pending])
+## Phase 1: Setup & Onboarding (Status: [Completed])
 - **Features**:
   - Project init with Expo.
   - Supabase integration (client setup, auth with email/phone/Google).
@@ -18,7 +18,7 @@
 - **Tests**: Unit tests for auth; manual testing for location input.
 - **Next**: Integrate Zustand for local state (e.g., form data).
 
-## Phase 2: Location-Based Matching (Status: [Pending])
+## Phase 2: Location-Based Matching (Status: [Working])
 - **Features**:
   - Geolocation integration (Expo Location) to restrict teachers to areas.
   - Matching algorithm: Query Supabase for nearby teachers based on student location (use geospatial queries).
@@ -73,6 +73,6 @@
 - **Tests**: End-to-end app flow; high-load simulation (e.g., Locust tool).
 
 ## Overall Status
-- Completed Phases: 0/6
+- Completed Phases: 1/6
 - Issues: [List any blockers]
 - Deployment: [Notes on Expo publish or app stores]

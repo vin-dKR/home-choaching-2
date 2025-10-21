@@ -1,23 +1,30 @@
 
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useState } from 'react';
+import { Alert, Button, Text, TextInput, View } from 'react-native';
+import { signInWithOTP } from '../../actions/auth';
 
 const LoginScreen: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { mutate: login, isPending, isError, error } = useAuth();
+  const [contact, setContact] = useState('');
   const router = useRouter();
 
-  const handleLogin = () => {
-    login({ email, password }, {
+  const { mutate: sendOTP, isPending } = useMutation({
+    mutationFn: signInWithOTP,
+  });
+
+  const handleSendOTP = () => {
+    const isEmail = contact.includes('@');
+    const options = {
+      [isEmail ? 'email' : 'phone']: contact,
+    };
+
+    sendOTP(options, {
       onSuccess: (data) => {
         if (data.error) {
-            Alert.alert('Login Failed', data.error.message);
+          Alert.alert('Error', data.error.message);
         } else {
-            // The root layout will handle redirecting to the correct dashboard
-            // so we don't need to do it here.
+          router.push({ pathname: '/auth/verify-otp', params: { contact } });
         }
       },
       onError: (error) => {
@@ -27,27 +34,19 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 16 }}>
-      <Text style={{ fontSize: 24, marginBottom: 16, textAlign: 'center' }}>Login</Text>
+    <View
+      className="flex-1 justify-center p-4 bg-red-900"
+    >
+      <Text className="text-2xl mb-4 text-center">Enter your email or phone number</Text>
       <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        className="border p-2 mb-2"
+        placeholder="Email or Phone Number"
+        value={contact}
+        onChangeText={setContact}
+        keyboardType={contact.includes('@') ? 'email-address' : 'phone-pad'}
         autoCapitalize="none"
-        keyboardType="email-address"
-        style={{ borderWidth: 1, padding: 8, marginBottom: 8 }}
       />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={{ borderWidth: 1, padding: 8, marginBottom: 16 }}
-      />
-      <Button title={isPending ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={isPending} />
-      {isError && <Text style={{ color: 'red', marginTop: 8, textAlign: 'center' }}>{error.message}</Text>}
-      <View style={{ marginTop: 16 }} />
-      <Button title="Don't have an account? Sign Up" onPress={() => router.push('/auth/signup')} />
+      <Button title={isPending ? 'Sending OTP...' : 'Send OTP'} onPress={handleSendOTP} disabled={isPending} />
     </View>
   );
 };

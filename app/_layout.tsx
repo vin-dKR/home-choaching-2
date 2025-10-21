@@ -13,12 +13,11 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 const queryClient = new QueryClient();
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(auth)/login',
+  initialRouteName: 'auth/login',
 };
 
 function RootLayoutNav() {
-  const { data: session, isLoading } = useQuery({ 
+  const { data: sessionData, isLoading } = useQuery({ 
     queryKey: ['session'], 
     queryFn: getSession 
   });
@@ -30,17 +29,27 @@ function RootLayoutNav() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === 'auth';
+    const session = sessionData?.session
 
-    // If the user is not signed in and the initial segment is not in the auth group.
-    if (!session?.data.session && !inAuthGroup) {
-      // Redirect to the login page.
+    if (!session && !inAuthGroup) {
       router.replace('/auth/login');
-    } else if (session?.data.session && inAuthGroup) {
-      // Redirect away from the auth page.
-      // We will redirect to the student dashboard as a default.
-      router.replace('/student/dashboard');
+    } else if (session) {
+        const onboarded = session.user.user_metadata?.onboarded;
+        const role = session.user.user_metadata?.role;
+
+        const isOnboardingFlow = 
+            (segments[0] === 'auth' && segments[1] === 'select-role') ||
+            (segments[0] === 'student' && segments[1] === 'onboarding') ||
+            (segments[0] === 'teacher' && segments[1] === 'onboarding');
+
+        if (inAuthGroup && onboarded) {
+            const targetDashboard = role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard';
+            router.replace(targetDashboard);
+        } else if (!onboarded && !isOnboardingFlow && !inAuthGroup) {
+            router.replace('/auth/select-role');
+        }
     }
-  }, [session, isLoading, segments, router]);
+  }, [sessionData, isLoading, segments, router]);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -48,8 +57,11 @@ function RootLayoutNav() {
 
   return (
       <Stack>
-          <Stack.Screen name="auth/login" options={{ headerShown: false }} />
-          <Stack.Screen name="auth/signup" options={{ headerShown: false }} />
+          <Stack.Screen name="auth/login" options={{ title: "Start signup or signin" }} />
+          <Stack.Screen name="auth/verify-otp" options={{ title: 'Verify Code' }} />
+          <Stack.Screen name="auth/select-role" options={{ title: 'Select Your Role' }} />
+          <Stack.Screen name="student/onboarding" options={{ title: 'Student Profile' }} />
+          <Stack.Screen name="teacher/onboarding" options={{ title: 'Teacher Profile' }} />
           <Stack.Screen name="student/dashboard" options={{ headerShown: false }} />
           <Stack.Screen name="teacher/dashboard" options={{ headerShown: false }} />
       </Stack>
