@@ -1,0 +1,35 @@
+export {}
+
+declare global {
+    // auth - types
+    interface SignInWithPassword {
+        email: string
+        password: string
+    }
+
+    interface SignUpWithPassword extends SignInWithPassword {
+        // You can add additional fields for sign up here, e.g.
+        // fullName: string;
+    }
+
+    // user - types
+    type UserRole = 'student' | 'teacher';
+
+    interface UserProfile {
+        id: string;
+        email: string;
+        role: UserRole;
+    }
+
+    // navigation - types
+    type RootStackParamList = {
+        Login: undefined;
+        SignUp: undefined;
+        StudentDashboard: undefined;
+        TeacherDashboard: undefined;
+    };
+
+    namespace ReactNavigation {
+        interface RootParamList extends RootStackParamList {}
+    }
+}
