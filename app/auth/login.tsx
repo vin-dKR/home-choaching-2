@@ -43,7 +43,6 @@ const LoginScreen: React.FC = () => {
         placeholder="Email or Phone Number"
         value={contact}
         onChangeText={setContact}
-        keyboardType={contact.includes('@') ? 'email-address' : 'phone-pad'}
         autoCapitalize="none"
       />
       <Button title={isPending ? 'Sending OTP...' : 'Send OTP'} onPress={handleSendOTP} disabled={isPending} />

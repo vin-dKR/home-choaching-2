@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
