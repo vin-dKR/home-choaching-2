@@ -5,7 +5,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import { getSession } from '../actions/auth';
+import { getProfile, getSession } from '../actions/auth';
 import LoadingScreen from '../components/Loading';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -16,16 +16,22 @@ export const unstable_settings = {
 };
 
 function RootLayoutNav() {
-    const { data: sessionData, isLoading } = useQuery({
+    const { data: sessionData, isLoading: sessionDataLoading } = useQuery({
         queryKey: ['session'],
         queryFn: getSession
     });
+
+    const { data: profileData, isLoading: profileLoading } = useQuery({
+        queryKey: ['profile'],
+        queryFn: getProfile,
+        enabled: !!sessionData, // Only run this query if the session exists
+    })
 
     const segments = useSegments();
     const router = useRouter();
 
     useEffect(() => {
-        if (isLoading) return;
+        if (sessionDataLoading) return;
 
         const inAuthGroup = segments[0] === 'auth';
         const session = sessionData?.session
@@ -33,8 +39,8 @@ function RootLayoutNav() {
         if (!session && !inAuthGroup) {
             router.replace('/auth/login');
         } else if (session) {
-            const onboarded = session.user.user_metadata?.onboarded;
-            const role = session.user.user_metadata?.role;
+            const onboarded = profileData?.onboarded
+            const role = profileData?.role
 
             const isOnboardingFlow =
                 (segments[0] === 'auth' && segments[1] === 'select-role') ||
@@ -48,9 +54,9 @@ function RootLayoutNav() {
                 router.replace('/auth/select-role');
             }
         }
-    }, [sessionData, isLoading, segments, router]);
+    }, [sessionData, sessionDataLoading, segments, router]);
 
-    if (isLoading) {
+    if (sessionDataLoading) {
         return <LoadingScreen />;
     }
 
@@ -61,8 +67,8 @@ function RootLayoutNav() {
             <Stack.Screen name="auth/select-role" options={{ title: 'Select Your Role' }} />
             <Stack.Screen name="student/onboarding" options={{ title: 'Student Profile' }} />
             <Stack.Screen name="teacher/onboarding" options={{ title: 'Teacher Profile' }} />
-            <Stack.Screen name="student/dashboard" options={{ headerShown: false }} />
-            <Stack.Screen name="teacher/dashboard" options={{ headerShown: false }} />
+            <Stack.Screen name="student/dashboard" options={{ headerShown: true }} />
+            <Stack.Screen name="teacher/dashboard" options={{ headerShown: true }} />
         </Stack>
     );
 }
@@ -72,12 +78,12 @@ export default function RootLayout() {
 
     return (
         <QueryClientProvider client={queryClient}>
-        {/*
+            {/*
             <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             </ThemeProvider>
             */}
-                <RootLayoutNav />
-                <StatusBar style="auto" />
+            <RootLayoutNav />
+            <StatusBar style="auto" />
         </QueryClientProvider>
     );
 }

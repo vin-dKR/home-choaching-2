@@ -18,14 +18,15 @@ const TeacherOnboardingScreen: React.FC = () => {
 
             const { error } = await supabase
                 .from('profiles')
-                .update({ name, bio, subject, onboarded: true })
+                .update({ name, bio, onboarded: true })
                 .eq('id', user.id);
 
             if (error) throw error;
         },
         onSuccess: () => {
+            console.log("go ahead for the dashboard")
             queryClient.invalidateQueries({ queryKey: ['profile'] });
-            router.replace('/teacher/dashboard');
+            router.push('/teacher/dashboard');
         },
         onError: (error) => {
             Alert.alert('An Error Occurred', error.message);
