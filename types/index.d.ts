@@ -1,4 +1,4 @@
-export {}
+export { }
 
 declare global {
     // auth - types
@@ -30,6 +30,25 @@ declare global {
     };
 
     namespace ReactNavigation {
-        interface RootParamList extends RootStackParamList {}
+        interface RootParamList extends RootStackParamList { }
     }
+
+
+    // classroom types
+    interface GradeType {
+        id: string
+        name: string
+    }
+
+    interface BoardType {
+        id: string
+        name: string
+    }
+
+    interface SubjectsType {
+        id: string
+        name: string
+        category: string
+    }
+
 }

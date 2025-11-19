@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../services/supabase';
 import { getProfile } from '../../actions/auth';
+import { getTeachers } from '@/actions/user';
 
 const StudentDashboard: React.FC = () => {
     const router = useRouter();
@@ -12,7 +13,12 @@ const StudentDashboard: React.FC = () => {
         queryFn: getProfile,
     });
 
-    console.log("-------------profile", profile)
+    const { data: teachersData, isLoading: teacherDataLoading, error: teacherDataError } = useQuery({
+        queryKey: ['teachersData'],
+        queryFn: getTeachers
+    })
+
+    console.log("-------------adsfsadfasdfasdf teachers data", teachersData)
     console.log("-----------err", error)
 
     const handleLogout = async () => {
