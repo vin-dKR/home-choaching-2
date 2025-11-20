@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction, useState } from 'react';
+
 export { }
 
 declare global {
@@ -36,19 +38,41 @@ declare global {
 
     // classroom types
     interface GradeType {
-        id: string
+        id: number
         name: string
     }
 
     interface BoardType {
-        id: string
+        id: number
         name: string
     }
 
     interface SubjectsType {
-        id: string
+        id: number
         name: string
         category: string
     }
+
+
+    // Onboarding ----------------------------------------------
+    // student-onboarding
+
+    interface CommonSelectionChipProps {
+        title: string
+        items: BoardType[] | GradeType[] | SubjectsType[]
+        selectedIds: number[]
+    }
+
+    type SingleSelectedProps = CommonSelectionChipProps & {
+        isMultiSelect?: false
+        onToggle: Dispatch<SetStateAction<number | null>>
+    }
+
+    type MultiSelectedProps = CommonSelectionChipProps & {
+        isMultiSelect: true
+        onToggle: Dispatch<SetStateAction<number[]>>
+    }
+
+    type SelectionChipProps = SingleSelectedProps | MultiSelectedProps
 
 }

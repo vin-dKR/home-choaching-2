@@ -40,7 +40,7 @@ export const getTeachers = async (): Promise<TeacherProfile[] | null> => {
     return data
 }
 
-export const getGrades = async (): Promise<GradeType[] | null> => {
+export const getGrades = async (): Promise<GradeType[]> => {
     const { data, error } = await supabase
         .from("grades")
         .select('*')
@@ -49,7 +49,7 @@ export const getGrades = async (): Promise<GradeType[] | null> => {
     return data
 }
 
-export const getBoards = async (): Promise<BoardType[] | null> => {
+export const getBoards = async (): Promise<BoardType[]> => {
     const { data, error } = await supabase
         .from('boards')
         .select('*')
@@ -59,7 +59,7 @@ export const getBoards = async (): Promise<BoardType[] | null> => {
     return data
 }
 
-export const getSubjects = async (): Promise<SubjectsType[] | null> => {
+export const getSubjects = async (): Promise<SubjectsType[]> => {
     const { data, error } = await supabase
         .from('subjects')
         .select('*')

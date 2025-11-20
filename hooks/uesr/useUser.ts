@@ -37,9 +37,9 @@ export const useUser = () => {
 
 
     return {
-        gradesData,
-        boardsData,
-        subjectsData,
+        gradesData: gradesData ?? [],
+        boardsData: boardsData ?? [],
+        subjectsData: subjectsData ?? [],
         isLoading: gradesDataLoading || boardsDataLoading || subjectsDataLoading,
         error: gradeErr || boardErr || subjectErr,
         updateProfile,
