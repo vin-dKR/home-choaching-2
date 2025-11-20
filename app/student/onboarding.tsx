@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Text, TextInput, ActivityIndicator } from 'react-native';
-import { ScrollView } from 'react-native-reanimated/lib/typescript/Animated';
+import { Text, TextInput, ActivityIndicator, View, Button, ScrollView, Alert } from 'react-native';
 import SelectionChip from '@/components/block/onbaording/student/SelectionChip';
 
 import { useUser } from '@/hooks/uesr/useUser';
+import { router } from 'expo-router';
 
 const StudentOnboardingScreen: React.FC = () => {
     const {
@@ -11,6 +11,8 @@ const StudentOnboardingScreen: React.FC = () => {
         gradesData,
         boardsData,
         subjectsData,
+        updateProfile,
+        isUpdatingProfile
     } = useUser()
 
     const [name, setName] = useState('');
@@ -20,6 +22,26 @@ const StudentOnboardingScreen: React.FC = () => {
     const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
     const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
 
+    const handleCompleteProfile = () => {
+
+        if (!name || !selectedGradeId || !selectedBoardId) {
+            Alert.alert('Missing Information', 'Please enter your name and select a grade and board.');
+            return;
+        }
+
+        const profileData = {
+            name,
+            phone,
+            bio,
+            student_grade_id: selectedGradeId,
+            student_board_id: selectedBoardId,
+            subject_ids: selectedSubjectIds,
+        }
+
+        updateProfile({ profileData, relation: "studies" })
+        router.push('/student/dashboard');
+
+    }
     return (
         <ScrollView className="flex-1 p-4 bg-gray-50">
             <Text className="text-2xl font-bold mb-6 text-center">Set Up Your Student Profile</Text>
@@ -73,6 +95,14 @@ const StudentOnboardingScreen: React.FC = () => {
                     />
                 </>
             )}
+
+            <View>
+                <Button
+                    title={isUpdatingProfile ? 'Saving...' : 'Complete Profile'}
+                    onPress={handleCompleteProfile}
+                    disabled={isUpdatingProfile || isLoading}
+                />
+            </View>
         </ScrollView>
     );
 };

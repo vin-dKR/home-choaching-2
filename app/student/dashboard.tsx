@@ -18,8 +18,7 @@ const StudentDashboard: React.FC = () => {
         queryFn: getTeachers
     })
 
-    console.log("-------------adsfsadfasdfasdf teachers data", teachersData)
-    console.log("-----------err", error)
+    // console.log("-------------adsfsadfasdfasdf teachers data", teachersData)
 
     const handleLogout = async () => {
         await supabase.auth.signOut();
@@ -44,7 +43,11 @@ const StudentDashboard: React.FC = () => {
             {profile && (
                 <View className="mb-4">
                     <Text className="text-lg">Name: {profile.name}</Text>
-                    <Text className="text-lg">Grade: {profile.grade}</Text>
+                    <Text className="text-lg">Email: {profile.email}</Text>
+                    <Text className="text-lg">Phone: {profile.phone}</Text>
+                    <Text className="text-lg">Bio: {profile.bio}</Text>
+                    <Text className="text-lg">Board: {profile.student_board_id}</Text>
+                    <Text className="text-lg">Grade: {profile.student_grade_id}</Text>
                 </View>
             )}
             <Button title="Logout" onPress={handleLogout} />

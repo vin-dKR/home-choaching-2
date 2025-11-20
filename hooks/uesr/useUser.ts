@@ -2,6 +2,13 @@ import { getBoards, getGrades, getSubjects } from '@/actions/user';
 import { supabase } from '@/services/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+interface UpdateProfileArgs {
+    profileData: {
+        subject_ids?: number[];
+        [key: string]: any;
+    };
+    relation: 'studies' | 'teaches';
+}
 
 export const useUser = () => {
     const queryClient = useQueryClient()
@@ -21,16 +28,39 @@ export const useUser = () => {
         queryFn: getSubjects
     })
 
-    const { mutate: updateProfile, isPending: isUpdatingProfile } = useMutation({
-        mutationFn: async (profileData: object) => {
-            const { error } = await supabase.rpc('update_user_profile', { profile_data: profileData })
-            if (error) throw error
+    const { mutate: updateProfile, isPending: isUpdatingProfile } = useMutation<void, Error, UpdateProfileArgs>({
+        mutationFn: async ({ profileData, relation }) => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error("User not AUTHENTICATED")
+
+            const { subject_ids, ...mainProfileData } = profileData
+
+            const { error: profileUpdateError } = await supabase
+                .from('profiles')
+                .update({ ...mainProfileData, onboarded: true })
+                .eq('id', user.id)
+
+            if (profileUpdateError) throw new Error("Profile Update ERROR")
+
+            if (subject_ids && subject_ids.length > 0) {
+                const subjectsToInsert = subject_ids.map((id) => ({
+                    profile_id: user.id,
+                    subject_id: id,
+                    relation: relation
+                }))
+
+                const { error: subjectInsertError } = await supabase
+                    .from('profile_subjects')
+                    .insert(subjectsToInsert)
+
+                if (subjectInsertError) throw new Error("Subject Insert ERROR", subjectInsertError)
+            }
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['profile'] })
         },
         onError: (error) => {
-            console.log("error iin hooks updatin profile")
+            // console.log("error iin hooks updatin profile", error)
             throw error
         }
     })

@@ -44,6 +44,9 @@ export const getGrades = async (): Promise<GradeType[]> => {
     const { data, error } = await supabase
         .from("grades")
         .select('*')
+    console.log("-------------------------------------------------------------------")
+    console.log("grades--", data)
+    console.log("-------------------------------------------------------------------")
 
     if (error) throw new Error("There is problem in fethcing the grade")
     return data
@@ -54,6 +57,10 @@ export const getBoards = async (): Promise<BoardType[]> => {
         .from('boards')
         .select('*')
 
+    console.log("-------------------------------------------------------------------")
+    console.log("boards--", data)
+    console.log("-------------------------------------------------------------------")
+
     if (error) throw new Error("there's a problem fetching the boards")
 
     return data
@@ -63,6 +70,10 @@ export const getSubjects = async (): Promise<SubjectsType[]> => {
     const { data, error } = await supabase
         .from('subjects')
         .select('*')
+
+    console.log("-------------------------------------------------------------------")
+    console.log("subjects--", data)
+    console.log("-------------------------------------------------------------------")
 
     if (error) throw new Error("error in fetching subjects")
     return data
