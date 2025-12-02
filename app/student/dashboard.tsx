@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, Button, ActivityIndicator, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { getTeachers } from '@/actions/user';
+import { getProfile } from '../../actions/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../services/supabase';
-import { getProfile } from '../../actions/auth';
-import { getTeachers } from '@/actions/user';
+import { View, Text, Button, ActivityIndicator, Alert } from 'react-native';
 
 const StudentDashboard: React.FC = () => {
     const router = useRouter();

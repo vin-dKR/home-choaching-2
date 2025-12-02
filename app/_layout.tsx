@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
@@ -11,52 +10,70 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const queryClient = new QueryClient();
 
-export const unstable_settings = {
-    initialRouteName: 'auth/login',
-};
-
 function RootLayoutNav() {
+    console.log("000 RENDER RootLayoutNav");
+
     const { data: sessionData, isLoading: sessionDataLoading } = useQuery({
         queryKey: ['session'],
         queryFn: getSession
     });
 
     const { data: profileData, isLoading: profileLoading } = useQuery({
-        queryKey: ['profile'],
+        queryKey: ['profile', sessionData?.session?.user.id],
         queryFn: getProfile,
-        enabled: !!sessionData, // Only run this query if the session exists
-    })
+        enabled: !!sessionData?.session?.user.id,
+    });
+
+    console.log("000 sessionData:", sessionData);
+    console.log("000 profileData:", profileData);
+    console.log("000 sessionLoading:", sessionDataLoading);
+    console.log("000 profileLoading:", profileLoading);
 
     const segments = useSegments();
     const router = useRouter();
 
     useEffect(() => {
-        if (sessionDataLoading) return;
+        console.log("000 USEEFFECT RUNNING");
+
+        if (sessionDataLoading || profileLoading) return;
 
         const inAuthGroup = segments[0] === 'auth';
-        const session = sessionData?.session
+        const session = sessionData?.session;
+
+        console.log("000 Auth Group:", inAuthGroup);
+        console.log("000 Session:", session);
 
         if (!session && !inAuthGroup) {
+            console.log("000 REDIRECT → /auth/login");
             router.replace('/auth/login');
         } else if (session) {
-            const onboarded = profileData?.onboarded
-            const role = profileData?.role
+            console.log("000 USER LOGGED IN");
+
+            const onboarded = profileData?.onboarded;
+            const role = profileData?.role;
 
             const isOnboardingFlow =
                 (segments[0] === 'auth' && segments[1] === 'select-role') ||
                 (segments[0] === 'student' && segments[1] === 'onboarding') ||
                 (segments[0] === 'teacher' && segments[1] === 'onboarding');
 
+            console.log("000 onboarded:", onboarded);
+            console.log("000 role:", role);
+            console.log("000 isOnboardingFlow:", isOnboardingFlow);
+
             if (inAuthGroup && onboarded) {
                 const targetDashboard = role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard';
+                console.log("000 REDIRECT →", targetDashboard);
                 router.replace(targetDashboard);
-            } else if (!onboarded && !isOnboardingFlow && !inAuthGroup) {
+            }
+            else if (!onboarded && !isOnboardingFlow && !inAuthGroup) {
+                console.log("000 REDIRECT → /auth/select-role");
                 router.replace('/auth/select-role');
             }
         }
-    }, [sessionData, sessionDataLoading, segments, router]);
+    }, [sessionData, profileData, profileLoading, sessionDataLoading, segments, router]);
 
-    if (sessionDataLoading) {
+    if (sessionDataLoading || profileLoading) {
         return <LoadingScreen />;
     }
 
@@ -70,8 +87,10 @@ function RootLayoutNav() {
             <Stack.Screen name="student/dashboard" options={{ headerShown: true }} />
             <Stack.Screen name="teacher/dashboard" options={{ headerShown: true }} />
         </Stack>
-    );
+
+    )
 }
+
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();

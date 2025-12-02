@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Text, TextInput, ActivityIndicator, View, Button, ScrollView, Alert } from 'react-native';
 import SelectionChip from '@/components/block/onbaording/student/SelectionChip';
+import { getSession } from '@/actions/auth';
+import { Text, TextInput, ActivityIndicator, View, Button, ScrollView, Alert } from 'react-native';
 
 import { useUser } from '@/hooks/uesr/useUser';
 import { router } from 'expo-router';
+import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
 
+const queryClient = new QueryClient()
 const StudentOnboardingScreen: React.FC = () => {
     const {
         isLoading,
@@ -21,6 +24,10 @@ const StudentOnboardingScreen: React.FC = () => {
     const [selectedGradeId, setSelectedGradeId] = useState<number | null>(null);
     const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
     const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+
+    const queryClient = useQueryClient()
+    const session = queryClient.getQueryData(['session'])
+    console.log("--------------session data in onbiarding", session)
 
     const handleCompleteProfile = () => {
 
