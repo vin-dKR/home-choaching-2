@@ -12,7 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 // Base item type that the Select component can handle
 export interface SelectItem {
-    id: number | string;
+    id: number;
     name: string;
 }
 

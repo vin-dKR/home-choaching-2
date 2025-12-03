@@ -1,8 +1,8 @@
+import "../global.css"
 import React, { useEffect } from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
 
 import { getProfile, getSession } from '../actions/auth';
 import LoadingScreen from '../components/Loading';
