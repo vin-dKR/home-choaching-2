@@ -15,6 +15,7 @@ const StudentDashboard: React.FC = () => {
     const handleLogout = async () => {
         await supabase.auth.signOut();
         router.replace('/auth/login');
+        return 
     };
 
     if (isLoading) {

@@ -7,10 +7,20 @@ import { StatusBar } from 'expo-status-bar';
 import { getProfile, getSession } from '../actions/auth';
 import LoadingScreen from '../components/Loading';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { supabase } from "@/services/supabase";
 
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
+
+    useEffect(() => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+            queryClient.invalidateQueries({ queryKey: ['session'] });
+            queryClient.invalidateQueries({ queryKey: ['profile'] });
+        });
+
+        return () => subscription.unsubscribe();
+    }, [queryClient]);
 
     const { data: sessionData, isLoading: sessionDataLoading } = useQuery({
         queryKey: ['session'],
