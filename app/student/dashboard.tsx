@@ -1,6 +1,5 @@
 import React from 'react';
 import { useRouter } from 'expo-router';
-import { getTeachers } from '@/actions/user';
 import { getProfile } from '../../actions/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../services/supabase';
@@ -12,13 +11,6 @@ const StudentDashboard: React.FC = () => {
         queryKey: ['profile'],
         queryFn: getProfile,
     });
-
-    const { data: teachersData, isLoading: teacherDataLoading, error: teacherDataError } = useQuery({
-        queryKey: ['teachersData'],
-        queryFn: getTeachers
-    })
-
-    // console.log("-------------adsfsadfasdfasdf teachers data", teachersData)
 
     const handleLogout = async () => {
         await supabase.auth.signOut();

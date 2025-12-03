@@ -1,38 +1,44 @@
 import React, { useState } from 'react';
-import SelectionChip from '@/components/block/onbaording/student/SelectionChip';
-import { getSession } from '@/actions/auth';
-import { Text, TextInput, ActivityIndicator, View, Button, ScrollView, Alert } from 'react-native';
-
+import { View, Text, TextInput, Button, Alert, ActivityIndicator, ScrollView } from 'react-native';
 import { useUser } from '@/hooks/uesr/useUser';
-import { router } from 'expo-router';
-import { QueryClient, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Select, SelectItem } from "@/components/ui/select"
+import * as Location from 'expo-location';
 
-const queryClient = new QueryClient()
 const StudentOnboardingScreen: React.FC = () => {
-    const {
-        isLoading,
-        gradesData,
-        boardsData,
-        subjectsData,
-        updateProfile,
-        isUpdatingProfile
-    } = useUser()
+    const [name, setName] = useState<string>('');
+    const [phone, setPhone] = useState<string>('');
+    const [bio, setBio] = useState<string>('');
+    const [location, setLocation] = useState<string>('');
+    const [selectedGrade, setSelectedGrade] = useState<SelectItem | null>(null);
+    const [selectedBoard, setSelectedBoard] = useState<SelectItem | null>(null);
+    const [selectedSubjects, setSelectedSubjects] = useState<SelectItem[]>([]);
 
-    const [name, setName] = useState('');
-    const [phone, setPhone] = useState('');
-    const [bio, setBio] = useState('');
-    const [selectedGradeId, setSelectedGradeId] = useState<number | null>(null);
-    const [selectedBoardId, setSelectedBoardId] = useState<number | null>(null);
-    const [selectedSubjectIds, setSelectedSubjectIds] = useState<number[]>([]);
+    const { gradesData, boardsData, subjectsData, isLoading, isUpdatingProfile, updateProfile } = useUser();
 
-    const queryClient = useQueryClient()
-    const session = queryClient.getQueryData(['session'])
-    console.log("--------------session data in onbiarding", session)
+    const handleGetLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission to access location was denied');
+            return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        const point = {
+            type: 'Point',
+            coordinates: [location.coords.longitude, location.coords.latitude]
+        };
+
+        console.log("--------- location is", location)
+        console.log("---------------------------------------------------------")
+        console.log("--------- point is", point)
+
+        setLocation(JSON.stringify(point));
+        Alert.alert('Location captured!', 'Your location has been set.');
+    };
 
     const handleCompleteProfile = () => {
-
-        if (!name || !selectedGradeId || !selectedBoardId) {
-            Alert.alert('Missing Information', 'Please enter your name and select a grade and board.');
+        if (!name || !selectedGrade || !selectedBoard) {
+            Alert.alert('Missing Information', 'Please fill in all required fields.');
             return;
         }
 
@@ -40,75 +46,56 @@ const StudentOnboardingScreen: React.FC = () => {
             name,
             phone,
             bio,
-            student_grade_id: selectedGradeId,
-            student_board_id: selectedBoardId,
-            subject_ids: selectedSubjectIds,
-        }
+            student_grade_id: selectedGrade.id,
+            student_board_id: selectedBoard.id,
+            subject_ids: selectedSubjects.map(s => s.id),
+            location: location
+        };
 
-        updateProfile({ profileData, relation: "studies" })
-        router.push('/student/dashboard');
+        updateProfile({ profileData, relation: 'studies' });
+    };
 
-    }
     return (
         <ScrollView className="flex-1 p-4 bg-gray-50">
             <Text className="text-2xl font-bold mb-6 text-center">Set Up Your Student Profile</Text>
 
-            <Text className="text-lg font-semibold mb-2">Full Name</Text>
-            <TextInput
-                className="border rounded-lg p-3 mb-4 bg-white"
-                placeholder="Enter your full name"
-                value={name}
-                onChangeText={setName}
-            />
+            <TextInput className="border border-gray-300 rounded-lg p-3 mb-4 bg-white text-base" placeholder="Full Name" value={name} onChangeText={setName} />
+            <TextInput className="border border-gray-300 rounded-lg p-3 mb-4 bg-white text-base" placeholder="Phone (Optional)" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+            <TextInput className="border border-gray-300 rounded-lg p-3 mb-4 bg-white text-base" placeholder="Bio (Optional)" value={bio} onChangeText={setBio} multiline />
 
-            <Text className="text-lg font-semibold mb-2">Phone Number</Text>
-            <TextInput
-                className="border rounded-lg p-3 mb-4 bg-white"
-                placeholder="Enter your phone number"
-                value={phone}
-                onChangeText={setPhone}
-            />
-
-            <Text className="text-lg font-semibold mb-2">About You</Text>
-            <TextInput
-                className="border rounded-lg p-3 mb-4 bg-white"
-                placeholder="Tell us little about yourself"
-                value={bio}
-                onChangeText={setBio}
-            />
+            <View className="flex-row items-center mb-4">
+                <TextInput className="flex-1 border border-gray-300 rounded-lg p-3 mr-2 bg-white text-base" placeholder="Location (e.g., city, state or use GPS)" value={location} onChangeText={setLocation} />
+                <Button title="Use My Location" onPress={handleGetLocation} />
+            </View>
 
             {isLoading ? (
                 <ActivityIndicator size="large" className="my-8" />
             ) : (
                 <>
-                    <SelectionChip
-                        title="Your Grade"
-                        items={gradesData}
-                        selectedIds={selectedGradeId ? [selectedGradeId] : []}
-                        onToggle={setSelectedGradeId}
+                    <Select<SelectItem>
+                        items={gradesData || []}
+                        selectedItem={selectedGrade}
+                        onValueChange={setSelectedGrade}
+                        placeholder="Select Your Grade"
                     />
-                    <SelectionChip
-                        title="Your Board"
-                        items={boardsData}
-                        selectedIds={selectedBoardId ? [selectedBoardId] : []}
-                        onToggle={setSelectedBoardId}
+                    <Select<SelectItem>
+                        items={boardsData || []}
+                        selectedItem={selectedBoard}
+                        onValueChange={setSelectedBoard}
+                        placeholder="Select Your Board"
                     />
-                    <SelectionChip
-                        title="Subjects You're Studying"
-                        items={subjectsData}
-                        selectedIds={selectedSubjectIds}
-                        onToggle={setSelectedSubjectIds}
-                        isMultiSelect={true}
+                    <Select<SelectItem>
+                        items={subjectsData || []}
+                        selectedItems={selectedSubjects}
+                        onValueChange={setSelectedSubjects}
+                        placeholder="Select Subjects You're Studying"
+                        isMulti
                     />
                 </>
             )}
 
-            <View>
-                <Button
-                    title={isUpdatingProfile ? 'Saving...' : 'Complete Profile'}
-                    onPress={handleCompleteProfile}
-                    disabled={isUpdatingProfile || isLoading}
-                />
+            <View className="mt-4 mb-8">
+                <Button title={isUpdatingProfile ? 'Saving...' : 'Complete Profile'} onPress={handleCompleteProfile} disabled={isUpdatingProfile || isLoading} />
             </View>
         </ScrollView>
     );
