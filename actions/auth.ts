@@ -11,8 +11,6 @@ type OTPResponse = {
 
 export const signInWithOTP = async (options: { email?: string; phone?: string; }): Promise<OTPResponse> => {
     const { data, error } = await supabase.auth.signInWithOtp(options as SignInWithPasswordlessCredentials);
-    console.log("this is data", data)
-    console.log("this is error", error)
     return { data, error };
 };
 

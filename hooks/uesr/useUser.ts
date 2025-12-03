@@ -1,6 +1,7 @@
 import { getBoards, getGrades, getSubjects } from '@/actions/user';
 import { supabase } from '@/services/supabase';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
 
 interface UpdateProfileArgs {
     profileData: {
@@ -56,11 +57,13 @@ export const useUser = () => {
                 if (subjectInsertError) throw new Error("Subject Insert ERROR", subjectInsertError)
             }
         },
-        onSuccess: () => {
+        onSuccess: (_data, variable) => {
             queryClient.invalidateQueries({ queryKey: ['profile'] })
+            const role = variable.relation === "studies" ? "student" : "teacher"
+            router.replace(`/${role}/dashboard`)
         },
         onError: (error) => {
-            // console.log("error iin hooks updatin profile", error)
+            console.log("error iin hooks updatin profile", error)
             throw error
         }
     })

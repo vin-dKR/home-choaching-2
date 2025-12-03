@@ -22,7 +22,6 @@ const SelectRoleScreen: React.FC = () => {
             return role;
         },
         onSuccess: (role) => {
-            console.log("hey we are done selecting the roles")
             queryClient.invalidateQueries({ queryKey: ['profile'] });
             router.replace(role === 'student' ? '/student/onboarding' : '/teacher/onboarding');
         },

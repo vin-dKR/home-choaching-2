@@ -52,13 +52,11 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({
                 <>{children}</>
             )}
 
-            <View className="mt-4 mb-8">
-                <Button
-                    title={isUpdatingProfile ? 'Saving...' : 'Complete Profile'}
-                    onPress={() => onCompleteProfile}
-                    disabled={isUpdatingProfile || isLoading}
-                />
-            </View>
+            <Button
+                title={isUpdatingProfile ? 'Saving...' : 'Complete Profile'}
+                onPress={() => onCompleteProfile(name, phone, bio, location)}
+                disabled={isUpdatingProfile || isLoading}
+            />
         </ScrollView>
     );
 };
