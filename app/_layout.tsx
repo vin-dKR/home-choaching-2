@@ -73,9 +73,13 @@ function RootLayoutNav() {
         <Stack>
             <Stack.Screen name="auth/login" options={{ title: "Start signup or signin" }} />
             <Stack.Screen name="auth/verify-otp" options={{ title: 'Verify Code' }} />
-            <Stack.Screen name="auth/select-role" options={{ title: 'Select Your Role' }} />
+            <Stack.Screen name="auth/select-role" options={{
+                title: 'Select Your Role',
+                headerBackVisible: false, 
+                headerLeft: () => null
+            }} />
             <Stack.Screen name="student/onboarding" options={{ title: 'Student Profile' }} />
-            <Stack.Screen name="teacher/onboarding" options={{ title: 'Teacher Profile' }} />
+            <Stack.Screen name="teacher/onboarding" options={{ title: 'Teacher Profile', headerBackButtonMenuEnabled: true, headerBackTitle: "Back" }} />
             <Stack.Screen name="student/dashboard" options={{ headerShown: true }} />
             <Stack.Screen name="teacher/dashboard" options={{ headerShown: true }} />
         </Stack>

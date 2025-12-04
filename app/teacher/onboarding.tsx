@@ -1,63 +1,83 @@
+import OnboardingScreen from '@/components/block/onbaording/screen/OnboardingScreen';
+import FormInput from '@/components/ui/form-input';
+import { Select, SelectItem } from '@/components/ui/select';
+import { useOnboardingForm } from '@/hooks/onboarding/useOnboardingForm';
+import { useUser } from '@/hooks/uesr/useUser';
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../../services/supabase';
 
 const TeacherOnboardingScreen: React.FC = () => {
-    const [name, setName] = useState('');
-    const [bio, setBio] = useState('');
-    const [subject, setSubject] = useState('');
-    const router = useRouter();
-    const queryClient = useQueryClient();
+    const {
+        name, setName,
+        phone, setPhone,
+        bio, setBio,
+        location, setLocation,
+        handleGetLocation,
+    } = useOnboardingForm();
 
-    const { mutate: updateProfile, isPending } = useMutation({
-        mutationFn: async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('No user logged in');
+    const [experience, setExperience] = useState<string>('');
+    const [hourlyRate, setHourlyRate] = useState<string>('');
+    const [selectedGrades, setSelectedGrades] = useState<SelectItem[]>([]);
+    const [selectedBoards, setSelectedBoards] = useState<SelectItem[]>([]);
+    const [selectedSubjects, setSelectedSubjects] = useState<SelectItem[]>([]);
 
-            const { error } = await supabase
-                .from('profiles')
-                .update({ name, bio, onboarded: true })
-                .eq('id', user.id);
+    const { gradesData, boardsData, subjectsData, isLoading, isUpdatingProfile, updateProfile } = useUser();
 
-            if (error) throw error;
-        },
-        onSuccess: () => {
-            console.log("go ahead for the dashboard")
-            queryClient.invalidateQueries({ queryKey: ['profile'] });
-            router.push('/teacher/dashboard');
-        },
-        onError: (error) => {
-            Alert.alert('An Error Occurred', error.message);
-        }
-    });
+    const handleCompleteProfile = () => {
+    }
 
     return (
-        <View className="flex-1 justify-center p-4">
-            <Text className="text-2xl mb-4 text-center">Teacher Onboarding</Text>
-            <TextInput
-                className="border p-2 mb-2"
-                placeholder="Full Name"
-                value={name}
-                onChangeText={setName}
+        <OnboardingScreen
+            title='Set Up Your Teacher Profile'
+            name={name}
+            setName={setName}
+            phone={phone}
+            setPhone={setPhone}
+            bio={bio}
+            setBio={setBio}
+            location={location}
+            setLocation={setLocation}
+            handleGetLocation={handleGetLocation}
+            onCompleteProfile={handleCompleteProfile}
+            isUpdatingProfile={isUpdatingProfile}
+            isLoading={isLoading}
+        >
+            <FormInput
+                placeholder='Year of Experience'
+                value={experience}
+                onChangeText={setExperience}
+                keyboardType='number-pad'
             />
-            <TextInput
-                className="border p-2 mb-2"
-                placeholder="A brief bio"
-                value={bio}
-                onChangeText={setBio}
-                multiline
+            <FormInput
+                placeholder='Hourly Rate (e.g., 500)'
+                value={hourlyRate}
+                onChangeText={setHourlyRate}
+                keyboardType='decimal-pad'
             />
-            <TextInput
-                className="border p-2 mb-4"
-                placeholder="Subject you teach"
-                value={subject}
-                onChangeText={setSubject}
+
+            <Select<SelectItem>
+                items={gradesData|| []}
+                selectedItems={selectedGrades}
+                onValueChange={setSelectedGrades}
+                placeholder="Select Grades You Teach"
+                isMulti
             />
-            <Button title={isPending ? 'Saving...' : 'Complete Profile'} onPress={() => updateProfile()} disabled={isPending} />
-        </View>
-    );
+            <Select<SelectItem>
+                items={boardsData|| []}
+                selectedItems={selectedBoards}
+                onValueChange={setSelectedBoards}
+                placeholder="Select Boards You Teach For"
+                isMulti
+            />
+            <Select<SelectItem>
+                items={subjectsData || []}
+                selectedItems={selectedSubjects}
+                onValueChange={setSelectedSubjects}
+                placeholder="Select Subjects You Teach"
+                isMulti
+            />
+        </OnboardingScreen>
+
+    )
 };
 
 export default TeacherOnboardingScreen;

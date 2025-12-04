@@ -23,7 +23,7 @@ const SelectRoleScreen: React.FC = () => {
         },
         onSuccess: (role) => {
             queryClient.invalidateQueries({ queryKey: ['profile'] });
-            router.replace(role === 'student' ? '/student/onboarding' : '/teacher/onboarding');
+            router.push(role === 'student' ? '/student/onboarding' : '/teacher/onboarding');
         },
         onError: (error) => {
             Alert.alert('An Error Occurred', error.message);
