@@ -35,13 +35,14 @@ export const useUser = () => {
             if (!user) throw new Error("User not AUTHENTICATED")
 
             const { subject_ids, ...mainProfileData } = profileData
+            console.log("mainProfileData--------------", mainProfileData)
 
             const { error: profileUpdateError } = await supabase
                 .from('profiles')
                 .update({ ...mainProfileData, onboarded: true })
                 .eq('id', user.id)
 
-            if (profileUpdateError) throw new Error("Profile Update ERROR")
+            if (profileUpdateError) throw new Error("Profile Update E0ROR", profileUpdateError)
 
             if (subject_ids && subject_ids.length > 0) {
                 const subjectsToInsert = subject_ids.map((id) => ({
