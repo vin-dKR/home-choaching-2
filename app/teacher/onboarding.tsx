@@ -24,24 +24,24 @@ const TeacherOnboardingScreen: React.FC = () => {
     const { gradesData, boardsData, subjectsData, isLoading, isUpdatingProfile, updateProfile } = useUser();
 
     const handleCompleteProfile = () => {
-         if (!name || !experience || !hourlyRate || selectedGrades.length === 0 || selectedBoards.length === 0 || selectedSubjects.length === 0) {
-      Alert.alert('Missing Information', 'Please fill out all fields and make selections.');
-      return;
-    }
+        if (!name || !experience || !hourlyRate || selectedGrades.length === 0 || selectedBoards.length === 0 || selectedSubjects.length === 0) {
+            Alert.alert('Missing Information', 'Please fill out all fields and make selections.');
+            return;
+        }
 
-    const profileData = {
-      name,
-      phone,
-      bio,
-      experience_years: parseInt(experience, 10),
-      hourly_rate: parseFloat(hourlyRate),
-      grade_ids: selectedGrades.map(g => g.id),
-      board_ids: selectedBoards.map(b => b.id),
-      subject_ids: selectedSubjects.map(s => s.id),
-      location,
-    };
+        const profileData = {
+            name,
+            phone,
+            bio,
+            experience_years: parseInt(experience, 10),
+            hourly_rate: parseFloat(hourlyRate),
+            grade_ids: selectedGrades.map(g => g.id),
+            board_ids: selectedBoards.map(b => b.id),
+            subject_ids: selectedSubjects.map(s => s.id),
+            location,
+        };
 
-    updateProfile({ profileData, relation: 'teaches' });
+        updateProfile({ profileData, relation: 'teaches' });
     }
 
     return (
